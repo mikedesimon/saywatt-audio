@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SayWatt – Audio Player</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="color-scheme" content="light dark" />
+  </head>
+  <body class="min-h-screen bg-gradient-to-b from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-100 antialiased">
+    <main class="min-h-screen flex items-center justify-center p-6">
+      <section class="w-full max-w-md">
+        <div class="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur shadow-xl ring-1 ring-black/5 dark:ring-white/10 p-6">
+          <header class="mb-6">
+            <h1 class="text-xl font-semibold tracking-tight">SayWatt – Quick Update</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Simple, modern audio player</p>
+          </header>
+
+          <!-- Audio Element -->
+          <audio id="audio" preload="metadata" class="hidden">
+            <source src="./sayWattQuickUpdate.wav" type="audio/wav" />
+            Your browser does not support the audio element.
+          </audio>
+
+          <!-- Controls -->
+          <div class="flex items-center gap-4">
+            <button id="playPauseBtn" type="button" class="group inline-flex h-12 w-12 items-center justify-center rounded-full bg-sky-600 text-white shadow hover:bg-sky-500 active:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 dark:focus:ring-offset-slate-900" aria-label="Play">
+              <!-- Play Icon -->
+              <svg id="iconPlay" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6"><path d="M5 4.653c0-1.504 1.624-2.45 2.93-1.69l11.05 6.347c1.342.771 1.342 2.61 0 3.382L7.93 19.039C6.624 19.8 5 18.854 5 17.35V4.653z"/></svg>
+              <!-- Pause Icon -->
+              <svg id="iconPause" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6 hidden"><path d="M6.75 5.25a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25zm6.75 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H14.25a.75.75 0 0 1-.75-.75V5.25z"/></svg>
+            </button>
+
+            <div class="flex-1">
+              <!-- Progress -->
+              <input id="progress" type="range" min="0" value="0" step="0.01" class="w-full accent-sky-600 cursor-pointer" aria-label="Seek" />
+
+              <div class="mt-1 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                <span id="currentTime">0:00</span>
+                <span id="duration">0:00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Volume + util -->
+          <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5 text-slate-500 dark:text-slate-400"><path d="M11.25 4.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-1.28.53l-4.72-4.72H3.75A1.75 1.75 0 0 1 2 12.81V11.2c0-.97.79-1.75 1.75-1.75h2.25l4.72-4.72a.75.75 0 0 1 .53-.23z"/></svg>
+              <input id="volume" type="range" min="0" max="1" step="0.01" value="1" class="w-full accent-sky-600 cursor-pointer" aria-label="Volume" />
+            </div>
+            <div class="flex items-center justify-end gap-3">
+              <a href="./sayWattQuickUpdate.wav" download class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white ring-1 ring-slate-300/70 hover:ring-slate-400 dark:ring-slate-700/80 dark:hover:ring-slate-600">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4"><path d="M12 3.75a.75.75 0 0 1 .75.75v9.19l2.47-2.47a.75.75 0 0 1 1.06 1.06l-3.75 3.75a.75.75 0 0 1-1.06 0l-3.75-3.75a.75.75 0 0 1 1.06-1.06l2.47 2.47V4.5a.75.75 0 0 1 .75-.75z"/><path d="M3.75 15a.75.75 0 0 1 .75.75v1.5A2.75 2.75 0 0 0 7.25 20h9.5A2.75 2.75 0 0 0 19.5 17.25v-1.5a.75.75 0 0 1 1.5 0v1.5A4.25 4.25 0 0 1 16.75 21h-9.5A4.25 4.25 0 0 1 3 17.25v-1.5A.75.75 0 0 1 3.75 15z"/></svg>
+                <span>Download</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const audio = document.getElementById('audio');
+      const playPauseBtn = document.getElementById('playPauseBtn');
+      const iconPlay = document.getElementById('iconPlay');
+      const iconPause = document.getElementById('iconPause');
+      const progress = document.getElementById('progress');
+      const currentTimeEl = document.getElementById('currentTime');
+      const durationEl = document.getElementById('duration');
+      const volume = document.getElementById('volume');
+
+      function formatTime(seconds) {
+        const total = Math.floor(seconds || 0);
+        const m = Math.floor(total / 60);
+        const s = total % 60;
+        return `${m}:${s.toString().padStart(2, '0')}`;
+      }
+
+      function setPlayingUI(isPlaying) {
+        if (isPlaying) {
+          iconPlay.classList.add('hidden');
+          iconPause.classList.remove('hidden');
+          playPauseBtn.setAttribute('aria-label', 'Pause');
+        } else {
+          iconPause.classList.add('hidden');
+          iconPlay.classList.remove('hidden');
+          playPauseBtn.setAttribute('aria-label', 'Play');
+        }
+      }
+
+      playPauseBtn.addEventListener('click', async () => {
+        try {
+          if (audio.paused) {
+            await audio.play();
+          } else {
+            audio.pause();
+          }
+        } catch (err) {
+          console.error('Playback error:', err);
+        }
+      });
+
+      audio.addEventListener('play', () => setPlayingUI(true));
+      audio.addEventListener('pause', () => setPlayingUI(false));
+
+      audio.addEventListener('loadedmetadata', () => {
+        progress.max = String(audio.duration || 0);
+        durationEl.textContent = formatTime(audio.duration);
+        currentTimeEl.textContent = formatTime(0);
+      });
+
+      audio.addEventListener('timeupdate', () => {
+        progress.value = String(audio.currentTime || 0);
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+      });
+
+      progress.addEventListener('input', () => {
+        currentTimeEl.textContent = formatTime(progress.value);
+      });
+
+      progress.addEventListener('change', () => {
+        audio.currentTime = Number(progress.value || 0);
+      });
+
+      volume.addEventListener('input', () => {
+        audio.volume = Number(volume.value);
+      });
+
+      playPauseBtn.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' || e.key === ' ') {
+          e.preventDefault();
+          playPauseBtn.click();
+        }
+      });
+    </script>
+  </body>
+  </html>
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SayWatt – Audio Player</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="color-scheme" content="light dark" />
+  </head>
+  <body class="min-h-screen bg-gradient-to-b from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-100 antialiased">
+    <main class="min-h-screen flex items-center justify-center p-6">
+      <section class="w-full max-w-md">
+        <div class="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur shadow-xl ring-1 ring-black/5 dark:ring-white/10 p-6">
+          <header class="mb-6">
+            <h1 class="text-xl font-semibold tracking-tight">SayWatt – Quick Update</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Simple, modern audio player</p>
+          </header>
+
+          <!-- Audio Element -->
+          <audio id="audio" preload="metadata" class="hidden">
+            <source src="./sayWattQuickUpdate.wav" type="audio/wav" />
+            Your browser does not support the audio element.
+          </audio>
+
+          <!-- Controls -->
+          <div class="flex items-center gap-4">
+            <button id="playPauseBtn" type="button" class="group inline-flex h-12 w-12 items-center justify-center rounded-full bg-sky-600 text-white shadow hover:bg-sky-500 active:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 dark:focus:ring-offset-slate-900" aria-label="Play">
+              <!-- Play Icon -->
+              <svg id="iconPlay" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6"><path d="M5 4.653c0-1.504 1.624-2.45 2.93-1.69l11.05 6.347c1.342.771 1.342 2.61 0 3.382L7.93 19.039C6.624 19.8 5 18.854 5 17.35V4.653z"/></svg>
+              <!-- Pause Icon -->
+              <svg id="iconPause" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6 hidden"><path d="M6.75 5.25a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25zm6.75 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H14.25a.75.75 0 0 1-.75-.75V5.25z"/></svg>
+            </button>
+
+            <div class="flex-1">
+              <!-- Progress -->
+              <input id="progress" type="range" min="0" value="0" step="0.01" class="w-full accent-sky-600 cursor-pointer" aria-label="Seek" />
+
+              <div class="mt-1 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                <span id="currentTime">0:00</span>
+                <span id="duration">0:00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Volume + util -->
+          <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5 text-slate-500 dark:text-slate-400"><path d="M11.25 4.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-1.28.53l-4.72-4.72H3.75A1.75 1.75 0 0 1 2 12.81V11.2c0-.97.79-1.75 1.75-1.75h2.25l4.72-4.72a.75.75 0 0 1 .53-.23z"/></svg>
+              <input id="volume" type="range" min="0" max="1" step="0.01" value="1" class="w-full accent-sky-600 cursor-pointer" aria-label="Volume" />
+            </div>
+            <div class="flex items-center justify-end gap-3">
+              <a href="./sayWattQuickUpdate.wav" download class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white ring-1 ring-slate-300/70 hover:ring-slate-400 dark:ring-slate-700/80 dark:hover:ring-slate-600">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4"><path d="M12 3.75a.75.75 0 0 1 .75.75v9.19l2.47-2.47a.75.75 0 0 1 1.06 1.06l-3.75 3.75a.75.75 0 0 1-1.06 0l-3.75-3.75a.75.75 0 0 1 1.06-1.06l2.47 2.47V4.5a.75.75 0 0 1 .75-.75z"/><path d="M3.75 15a.75.75 0 0 1 .75.75v1.5A2.75 2.75 0 0 0 7.25 20h9.5A2.75 2.75 0 0 0 19.5 17.25v-1.5a.75.75 0 0 1 1.5 0v1.5A4.25 4.25 0 0 1 16.75 21h-9.5A4.25 4.25 0 0 1 3 17.25v-1.5A.75.75 0 0 1 3.75 15z"/></svg>
+                <span>Download</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const audio = document.getElementById('audio');
+      const playPauseBtn = document.getElementById('playPauseBtn');
+      const iconPlay = document.getElementById('iconPlay');
+      const iconPause = document.getElementById('iconPause');
+      const progress = document.getElementById('progress');
+      const currentTimeEl = document.getElementById('currentTime');
+      const durationEl = document.getElementById('duration');
+      const volume = document.getElementById('volume');
+
+      function formatTime(seconds) {
+        const total = Math.floor(seconds || 0);
+        const m = Math.floor(total / 60);
+        const s = total % 60;
+        return `${m}:${s.toString().padStart(2, '0')}`;
+      }
+
+      function setPlayingUI(isPlaying) {
+        if (isPlaying) {
+          iconPlay.classList.add('hidden');
+          iconPause.classList.remove('hidden');
+          playPauseBtn.setAttribute('aria-label', 'Pause');
+        } else {
+          iconPause.classList.add('hidden');
+          iconPlay.classList.remove('hidden');
+          playPauseBtn.setAttribute('aria-label', 'Play');
+        }
+      }
+
+      playPauseBtn.addEventListener('click', async () => {
+        try {
+          if (audio.paused) {
+            await audio.play();
+          } else {
+            audio.pause();
+          }
+        } catch (err) {
+          // Surface basic playback errors (e.g., autoplay restrictions)
+          console.error('Playback error:', err);
+        }
+      });
+
+      audio.addEventListener('play', () => setPlayingUI(true));
+      audio.addEventListener('pause', () => setPlayingUI(false));
+
+      audio.addEventListener('loadedmetadata', () => {
+        progress.max = String(audio.duration || 0);
+        durationEl.textContent = formatTime(audio.duration);
+        currentTimeEl.textContent = formatTime(0);
+      });
+
+      audio.addEventListener('timeupdate', () => {
+        progress.value = String(audio.currentTime || 0);
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+      });
+
+      progress.addEventListener('input', () => {
+        // Update time label while scrubbing
+        currentTimeEl.textContent = formatTime(progress.value);
+      });
+
+      progress.addEventListener('change', () => {
+        audio.currentTime = Number(progress.value || 0);
+      });
+
+      volume.addEventListener('input', () => {
+        audio.volume = Number(volume.value);
+      });
+
+      // Keyboard: Space toggles play/pause when button is focused
+      playPauseBtn.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' || e.key === ' ') {
+          e.preventDefault();
+          playPauseBtn.click();
+        }
+      });
+    </script>
+  </body>
+  </html>
+
+
